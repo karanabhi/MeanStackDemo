@@ -9,26 +9,49 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <script type="text/javascript">
         var app = angular.module("mittens", []);
-        app.controller('MittensCtrl', function ($scope) {
-            $scope.displayData = [
-                "Hello World", "Hello XYZ", "Hello ABC","Hi QWERTTY"
-            ];
-        });
+        app.controller('MittensCtrl', function ($scope, $http) {
+            //Get Server Data
+            $http({
+                method: "GET",
+                url: '\meows'
+            }).then(function successCallback(response) {
+                $scope.displayData = response.data;
+            }, function errorCallback(response) {
+                alert("trouble..");
+            });
+
+            //Post UserName Server Data
+            $scope.sendPostData = function () {
+                $http({
+                    method: "POST",
+                    url: '\meows',
+                    data: { postData: $scope.Uname }
+                }).then(function successCallback(response) {                    
+                    alert("success");
+                }, function errorCallback(response) {
+                    alert("trouble Post..");
+                });
+            }
+
+        });//Controller 
     </script>
 </head>
+
 <body class="container" ng-app="mittens" ng-controller="MittensCtrl">
     <h1>
         Hello World!
     </h1>
     <br/><br/>
     <div class="center">
-        <input type="text" placeholder="UserName" ng-model="name" />
+        <input type="text" placeholder="UserName" ng-model="Uname" />
         <br/><br/>
         <input type="password" placeholder="Password" />
+        <br/><br/>
+        <button type="button" class="btn btn-success" ng-click="sendPostData()">Send Data</button>
     </div>
     <br/><br/>
     <div>
-        {{name}}
+        {{Uname}}
     </div>
     <div ng-repeat="data in displayData">
         {{data}}
