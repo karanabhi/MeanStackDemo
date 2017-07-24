@@ -1,0 +1,21 @@
+<h1>
+    Login
+</h1>
+<br/><br/>
+<div class="center">
+    <input type="text" placeholder="UserName" ng-model="Uname" />
+    <br/><br/>
+    <input type="password" placeholder="Password" ng-model="Password" />
+    <br/><br/>
+    <button type="button" class="btn btn-success" ng-click="signIn()">Login</button>
+    <br/><br/>
+    <a href="#!/signup">Need to Sign Up?</a>
+</div>
+<br/><br/>
+<div>
+    {{Uname}}
+</div>
+<div ng-repeat="data in displayData">
+    {{data.text}}
+    <a href ng-click="removeDisplayData(data)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+</div>
