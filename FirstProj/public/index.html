@@ -68,7 +68,7 @@
                     alert("Success");
                     //getServerData();
                 }, function (err) {
-                    alert("trouble Signing In..");
+                    alert("Invalid Credentials!.");
                 });
             }
 
@@ -88,10 +88,9 @@
                     method: "POST",
                     url: '/users',
                     data: { userData: signUpdata }
-                }).then(function successCallback(response) {
+                }).then(function (response) {
                     alert("Signed Up Successful");
-                    //getServerData();
-                }, function errorCallback(response) {
+                }, function (response) {
                     alert("trouble signing up..");
                 });
             }
@@ -100,6 +99,7 @@
 </head>
 
 <body class="container" ng-app="mittens">
+    <h1><a href="#!">Mittens</a></h1>
     <div ng-view></div>
 </body>
 

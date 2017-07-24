@@ -3,6 +3,7 @@ const app = express();
 var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
+var bcrypt = require('bcryptjs');
 
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -63,32 +64,55 @@ app.put('/meows/remove', function (req, res, next) {
 
 //Insert SignUP user Data in DB
 app.post('/users', function (req, res, next) {
-    //console.log(req.body);
-    db.collection('users').insertOne(
-        req.body.userData
-        , function (err, result) {
-            if (!err) {
-                console.log("Successfull SignUP");
-            } else {
-                console.log("Failed SignUp");
-            }
-            return res.send();
-        });
-});
 
-//Sign In
-app.put('/users/signin', function (req, res, next) {
-    db.collection('users', function (err, usersCollection) {
-        usersCollection.findOne({ uname: req.body.userSignIn.uname }, function (err, users) {
-            console.log(users);
-            if (users) {
-                return res.send();
+    bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(req.body.userData.upass, salt, function (err, hash) {
+
+            if (hash) {
+                var user = {
+                    uname: req.body.userData.uname,
+                    upass: hash
+                };
+
+                db.collection('users').insertOne(
+                    user
+                    , function (err, result) {
+                        if (!err) {
+                            console.log("Successfull SignUP");
+                        } else {
+                            console.log("Failed SignUp");
+                        }
+                        return res.send();
+                    });
             } else {
                 return res.status(400).send();
             }
         });
     });
-});//get()
+
+
+
+});
+
+//Sign In
+app.put('/users/signin', function (req, res, next) {
+
+    db.collection('users', function (err, usersCollection) {
+        usersCollection.findOne({ uname: req.body.userSignIn.uname }, function (err, users) {
+            if (users) {
+                bcrypt.compare(req.body.userSignIn.upass, users.upass, function (err, result) {
+                    if (result) {
+                        return res.send();
+                    } else {
+                        return res.status(400).send();
+                    }
+                });
+            } else {
+                return res.status(400).send();
+            }
+        });
+    });
+});
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!')
