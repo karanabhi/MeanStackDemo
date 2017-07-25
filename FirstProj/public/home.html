@@ -1,17 +1,23 @@
-<h1>
-    Login
-</h1>
-<br/><br/>
-<div class="center">
-    <input type="text" placeholder="UserName" ng-model="Uname" />
+<div ng-hide="CurrentUser">
+    <h1>
+        Login
+    </h1>
     <br/><br/>
-    <input type="password" placeholder="Password" ng-model="Password" />
+    <div class="center">
+        <input type="text" placeholder="UserName" ng-model="Uname" />
+        <br/><br/>
+        <input type="password" placeholder="Password" ng-model="Password" />
+        <br/><br/>
+        <button type="button" class="btn btn-success" ng-click="signIn()">Login</button>
+        <br/><br/>
+        <a href="#!/signup">Need to Sign Up?</a>
+    </div>
     <br/><br/>
-    <button type="button" class="btn btn-success" ng-click="signIn()">Login</button>
-    <br/><br/>
-    <a href="#!/signup">Need to Sign Up?</a>
 </div>
-<br/><br/>
+<div ng-show="CurrentUser">
+    <h3>Welcome back, {{CurrentUser}}!</h3><br/>
+    <a href ng-click="logout()">Logout</a><br/><br/>
+</div>
 <div>
     {{Uname}}
 </div>

@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 var bcrypt = require('bcryptjs');
+var jwt = require('jwt-simple');
 
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -15,6 +16,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 
 var db = null;
+var JWT_SECRET = "iloveu";
 //Connect DB
 MongoClient.connect('mongodb://localhost:27017/mittins', function (err, dbConn) {
     if (!err) {
@@ -25,11 +27,19 @@ MongoClient.connect('mongodb://localhost:27017/mittins', function (err, dbConn) 
 
 //Get DB data
 app.get('/meows', function (req, res, next) {
-    db.collection('meows', function (err, meowsCollection) {
-        meowsCollection.find().toArray(function (err, meows) {
-            return res.json(meows);
+    var token = req.headers.authorization;
+    if (token) {
+        var users = jwt.decode(token, JWT_SECRET);
+        //console.log(users.uname);
+        db.collection('meows', function (err, meowsCollection) {
+            meowsCollection.find().toArray(function (err, meows) {
+                return res.json(meows);
+            });
         });
-    });
+    } else {
+        return res.send();
+    }
+
 });//get()
 
 //Insert Data in DB
@@ -47,7 +57,7 @@ app.post('/meows', function (req, res, next) {
     });
 });
 
-//Remove Db from DB
+//Remove Data from DB
 app.put('/meows/remove', function (req, res, next) {
     var removeItem = req.body.item._id;
     db.collection('meows').deleteOne({
@@ -102,7 +112,8 @@ app.put('/users/signin', function (req, res, next) {
             if (users) {
                 bcrypt.compare(req.body.userSignIn.upass, users.upass, function (err, result) {
                     if (result) {
-                        return res.send();
+                        var token = jwt.encode(users, JWT_SECRET);
+                        return res.json({ token: token });
                     } else {
                         return res.status(400).send();
                     }

@@ -8,8 +8,9 @@
         crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-cookies.js"></script>
     <script type="text/javascript">
-        var app = angular.module("mittens", ['ngRoute']);
+        var app = angular.module("mittens", ['ngRoute', 'ngCookies']);
 
         app.config(function ($routeProvider, $locationProvider) {
             $routeProvider
@@ -23,14 +24,20 @@
                 })
         });
 
-        app.controller('HomeController', function ($scope, $http) {
-            //Get Server Data
-            getServerData();
+        app.run(function ($rootScope, $cookies) {
+            if ($cookies.get('token') && $cookies.get('CurrentUser')) {
+                $rootScope.token = $cookies.get('token');
+                $rootScope.CurrentUser = $cookies.get('CurrentUser');
+            }
+        });
+
+        app.controller('HomeController', function ($rootScope, $scope, $http, $cookies) {
 
             function getServerData() {
                 $http({
                     method: "GET",
-                    url: '\meows'
+                    url: '\meows',
+                    headers: { 'Authorization': $rootScope.token }
                 }).then(function successCallback(response) {
                     $scope.displayData = response.data;
                 }, function errorCallback(response) {
@@ -64,12 +71,24 @@
                     method: "PUT",
                     url: '/users/signin',
                     data: { userSignIn: signIndata }
-                }).then(function () {
-                    alert("Success");
-                    //getServerData();
+                }).then(function (res) {
+                    //alert("Success");                    
+                    $cookies.put("token", res.data.token);
+                    $cookies.put("CurrentUser", $scope.Uname);
+                    $rootScope.token = res.data.token;
+                    $rootScope.CurrentUser = $scope.Uname;
+                    getServerData();
                 }, function (err) {
                     alert("Invalid Credentials!.");
                 });
+            }
+
+            //Logout
+            $scope.logout = function () {
+                $cookies.remove("token");
+                $cookies.remove("CurrentUser");
+                $rootScope.token = null;
+                $rootScope.CurrentUser = null;
             }
 
         });//Controller
